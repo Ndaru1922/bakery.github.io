@@ -205,6 +205,9 @@
 			DOM.details.open({
 				productBg: this.DOM.productBg
 			});
+			if (typeof window.initYushiReviewUI === 'function') {
+				window.initYushiReviewUI();
+			}
 		}
 	}; // class Item
 
@@ -217,5 +220,172 @@
 
 	DOM.details = new Details();
 };
+
+(function() {
+	const STORAGE_KEY = 'yushi_reviews_v1';
+	const OWNER_SESSION_KEY = 'yushi_owner_unlocked';
+	const OWNER_KEY = 'yushi-owner-2026'; // Ganti untuk kunci pemilik Anda.
+
+	function escapeHtml(value) {
+		return String(value)
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#39;');
+	}
+
+	function getReviews() {
+		try {
+			const raw = localStorage.getItem(STORAGE_KEY);
+			const parsed = raw ? JSON.parse(raw) : [];
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (e) {
+			return [];
+		}
+	}
+
+	function saveReviews(reviews) {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+	}
+
+	function renderStars(value) {
+		const rating = Math.max(0, Math.min(5, Number(value) || 0));
+		return '*****'.slice(0, rating) + '-----'.slice(0, 5 - rating);
+	}
+
+	function isOwnerUnlocked() {
+		return sessionStorage.getItem(OWNER_SESSION_KEY) === '1';
+	}
+
+	function setOwnerUnlocked(state) {
+		sessionStorage.setItem(OWNER_SESSION_KEY, state ? '1' : '0');
+	}
+
+	function getReviewElements() {
+		const scope = document.querySelector('.details--open') || document;
+		return {
+			form: scope.querySelector('#reviewForm'),
+			nameInput: scope.querySelector('#reviewer_name'),
+			ratingInput: scope.querySelector('#review_rating'),
+			messageInput: scope.querySelector('#review_message'),
+			list: scope.querySelector('#reviewList'),
+			empty: scope.querySelector('#reviewEmpty'),
+			avgRating: scope.querySelector('#avgRating'),
+			avgStars: scope.querySelector('#avgStars'),
+			count: scope.querySelector('#reviewCount'),
+			ownerKey: scope.querySelector('#ownerKey'),
+			ownerStatus: scope.querySelector('#ownerStatus')
+		};
+	}
+
+	function renderReviews() {
+		const el = getReviewElements();
+		if (!el.list) {
+			return;
+		}
+
+		const ownerMode = isOwnerUnlocked();
+		const reviews = getReviews().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+		const total = reviews.reduce((sum, item) => sum + Number(item.rating || 0), 0);
+		const average = reviews.length ? (total / reviews.length).toFixed(1) : '0.0';
+
+		el.avgRating.textContent = average;
+		el.avgStars.textContent = renderStars(Math.round(Number(average)));
+		el.count.textContent = `(${reviews.length} ulasan)`;
+		el.ownerStatus.textContent = ownerMode ? 'Mode pemilik aktif. Anda bisa menghapus komentar.' : 'Mode pemilik belum aktif.';
+
+		if (!reviews.length) {
+			el.list.innerHTML = '';
+			el.empty.style.display = 'block';
+			return;
+		}
+
+		el.empty.style.display = 'none';
+		el.list.innerHTML = reviews.map((item) => `
+			<article class="review-item">
+				<div class="review-head">
+					<div>
+						<div class="review-name">${escapeHtml(item.name)}</div>
+						<div class="review-date">${escapeHtml(item.createdAtLabel)}</div>
+					</div>
+					${ownerMode ? `<button type="button" class="review-delete" data-review-id="${escapeHtml(item.id)}">Hapus</button>` : ''}
+				</div>
+				<div class="review-stars">${renderStars(item.rating)}</div>
+				<p>${escapeHtml(item.message)}</p>
+			</article>
+		`).join('');
+	}
+
+	function handleFormSubmit(event) {
+		const form = event.target.closest('#reviewForm');
+		if (!form) {
+			return;
+		}
+		event.preventDefault();
+
+		const el = getReviewElements();
+		if (!el.nameInput || !el.ratingInput || !el.messageInput) {
+			return;
+		}
+
+		const name = el.nameInput.value.trim();
+		const rating = Number(el.ratingInput.value);
+		const message = el.messageInput.value.trim();
+
+		if (!name || !message || !rating) {
+			return;
+		}
+
+		const now = new Date();
+		const review = {
+			id: `${Date.now()}_${Math.floor(Math.random() * 100000)}`,
+			name,
+			rating,
+			message,
+			createdAt: now.toISOString(),
+			createdAtLabel: now.toLocaleString('id-ID', {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			})
+		};
+
+		const reviews = getReviews();
+		reviews.push(review);
+		saveReviews(reviews);
+		form.reset();
+		renderReviews();
+	}
+
+	function handleClick(event) {
+		const unlockBtn = event.target.closest('#ownerUnlock');
+		if (unlockBtn) {
+			const el = getReviewElements();
+			if (!el.ownerKey) {
+				return;
+			}
+			const keyInput = el.ownerKey.value.trim();
+			setOwnerUnlocked(keyInput === OWNER_KEY);
+			el.ownerKey.value = '';
+			renderReviews();
+			return;
+		}
+
+		const deleteBtn = event.target.closest('.review-delete');
+		if (deleteBtn && isOwnerUnlocked()) {
+			const reviewId = deleteBtn.getAttribute('data-review-id');
+			const filtered = getReviews().filter((item) => item.id !== reviewId);
+			saveReviews(filtered);
+			renderReviews();
+		}
+	}
+
+	window.initYushiReviewUI = function() {
+		setTimeout(renderReviews, 350);
+	};
+
+	document.addEventListener('submit', handleFormSubmit);
+	document.addEventListener('click', handleClick);
+})();
 
 

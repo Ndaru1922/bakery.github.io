@@ -6,10 +6,20 @@ https://www.tooplate.com/view/2097-pop
 
 */
 
+:root {
+  --bg-overlay-1: rgba(24, 17, 26, 0.88);
+  --bg-overlay-2: rgba(38, 27, 39, 0.78);
+  --card-bg: rgba(30, 24, 34, 0.82);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --accent: #ffb86b;
+  --accent-hover: #ffca8c;
+  --text-soft: #e9dde1;
+}
+
 body {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", "Segoe UI", Tahoma, sans-serif;
   font-size: 19px;
-  font-weight: 300;
+  font-weight: 400;
   color: white;
   position: relative;
 }
@@ -40,6 +50,7 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(145deg, var(--bg-overlay-1), var(--bg-overlay-2));
 }
 
 #tm-wrap {
@@ -77,6 +88,11 @@ p {
   width: 100%;
 }
 
+.tm-header-subtitle {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .tm-nav ul {
   padding-left: 0;
   display: block;
@@ -98,9 +114,13 @@ p {
   width: 165px;
   height: 165px;
   text-align: center;
-  border: 1px solid white;
+  border: 1px solid var(--card-border);
   cursor: pointer;
   position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
 }
 
 .tm-nav-text {
@@ -120,8 +140,8 @@ p {
 }
 
 .product:hover {
-  background: #2c2a35;
-  color: #a9a9a9;
+  background: rgba(45, 34, 50, 0.8);
+  color: #f0e6ea;
 }
 
 .tm-nav-icon {
@@ -206,7 +226,10 @@ p {
 }
 
 .details__bg--down {
-  background: #2c2a35;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  backdrop-filter: blur(12px);
 }
 
 .details__bg {
@@ -262,17 +285,18 @@ p {
 /* Contact */
 .form-control {
   font-size: 1.1rem;
-  border-radius: 0;
-  border: none;
-  background-color: #353541;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background-color: rgba(255, 255, 255, 0.08);
   color: white;
   padding: 0.75rem;
 }
 
 .form-control:focus {
-  color: #cecece;
-  background-color: #4d4c59;
-  border-color: transparent;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent);
+  box-shadow: none;
 }
 
 .tm-col-email {
@@ -280,16 +304,18 @@ p {
 }
 
 .tm-btn-submit {
-  background-color: #006599;
+  background-color: var(--accent);
+  color: #2c1b10;
+  font-weight: 700;
 }
 
 .tm-btn-gray {
-  background-color: #494752;
+  background-color: rgba(255, 255, 255, 0.12);
   color: white;
 }
 
 .tm-btn-gray:hover {
-  background-color: #77757d;
+  background-color: rgba(255, 255, 255, 0.22);
   color: white;
 }
 
@@ -304,8 +330,9 @@ p {
 }
 
 .btn-primary:hover {
-  background-color: #0e7fb9;
+  background-color: var(--accent-hover);
   border-color: transparent;
+  color: #2c1b10;
 }
 
 /* Footer */
@@ -335,7 +362,108 @@ footer {
 .tm-copyright-text {
   background-color: rgba(0, 0, 0, 0.6);
   display: inline-block;
-  padding: 10px 30px;
+  padding: 10px 22px;
+  border-radius: 999px;
+}
+
+.review-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: 10px;
+}
+
+#avgRating {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--accent);
+}
+
+.review-stars {
+  letter-spacing: 2px;
+  color: #ffd27b;
+}
+
+.owner-tools {
+  margin-top: 20px;
+  padding: 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.owner-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+}
+
+.owner-row {
+  display: flex;
+  gap: 10px;
+}
+
+.owner-row .form-control {
+  margin: 0;
+}
+
+#ownerStatus {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--text-soft);
+}
+
+.review-list {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.review-item {
+  padding: 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.review-name {
+  font-weight: 700;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.review-delete {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #ffd0d0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.review-delete:hover {
+  background: rgba(255, 120, 120, 0.12);
+}
+
+.review-empty {
+  margin-top: 12px;
+  color: var(--text-soft);
 }
 
 a,
@@ -383,6 +511,9 @@ p:last-child {
   }
   .tm-col-email {
     padding-left: 15px;
+  }
+  .owner-row {
+    flex-direction: column;
   }
   .tm-reverse-sm {
     flex-direction: column-reverse;
